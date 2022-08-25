@@ -38,7 +38,7 @@ class Gift
         }
 
 
-        $sql = $this->pdo->prepare("INSERT INTO [FNLBilling].[dbo].[TBLSysOrderList] (mAvailablePeriod, mCnt, mItemID, mPracticalPeriod, mSvrNo, mSysID, mUserNo, mBindingType, mLimitedDate, mItemStatus) SELECT items.available_period, items.count, items.item_id, items.practical_period, 2155, promo_codes.sys_id, :user_id, items.binding_type, '2079-06-06', items.item_status FROM [FNLAccount].[dbo].[promo_codes] INNER JOIN [FNLAccount].[dbo].[items] ON promo_codes.id = items.promo_code_id WHERE promo_code = :promo_code");
+        $sql = $this->pdo->prepare("INSERT INTO [FNLBilling].[dbo].[TBLSysOrderList] (mAvailablePeriod, mCnt, mItemID, mPracticalPeriod, mSvrNo, mSysID, mUserNo, mBindingType, mLimitedDate, mItemStatus) SELECT items.available_period, items.count, items.item_id, items.practical_period, 2157, promo_codes.sys_id, :user_id, items.binding_type, '2079-06-06', items.item_status FROM [FNLAccount].[dbo].[promo_codes] INNER JOIN [FNLAccount].[dbo].[items] ON promo_codes.id = items.promo_code_id WHERE promo_code = :promo_code");
         $sql->execute([
             'promo_code' => $promo_code['promo_code'],
             'user_id' => $user['mUserNo']
@@ -55,7 +55,7 @@ class Gift
 
     private function getMaxCharacterLvl(string $login)
     {
-        $sql = $this->pdo->prepare("SELECT MAX(mLevel) AS mLevel FROM [FNLAccount].[dbo].[TblUser] INNER JOIN [FNLGame2155].[dbo].[TblPc] ON TblUser.mUserNo = TblPc.mOwner INNER JOIN [FNLGame2155].[dbo].[TblPcState] ON TblPc.mNo = TblPcState.mNo WHERE mUserId = :login");
+        $sql = $this->pdo->prepare("SELECT MAX(mLevel) AS mLevel FROM [FNLAccount].[dbo].[TblUser] INNER JOIN [FNLGame2157].[dbo].[TblPc] ON TblUser.mUserNo = TblPc.mOwner INNER JOIN [FNLGame2157].[dbo].[TblPcState] ON TblPc.mNo = TblPcState.mNo WHERE mUserId = :login");
         $sql->execute(['login' => $login]);
 
         return $sql->fetch(PDO::FETCH_ASSOC)['mLevel'];
