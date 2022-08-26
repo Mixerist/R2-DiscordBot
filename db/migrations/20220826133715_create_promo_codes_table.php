@@ -18,9 +18,8 @@ final class CreatePromoCodesTable extends AbstractMigration
      */
     public function change(): void
     {
-        $table = $this->table('promo_codes', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger')
-            ->addColumn('sys_id', 'biginteger')
+        $table = $this->table('promo_codes');
+        $table->addColumn('sys_id', 'biginteger')
             ->addColumn('server_id', 'smallinteger')
             ->addColumn('promo_code', 'string')
             ->addIndex('promo_code', ['unique' => true])

@@ -19,12 +19,12 @@ return
             'charset' => 'utf8',
         ],
         'development' => [
-            'adapter' => 'mysql',
-            'host' => 'localhost',
-            'name' => 'development_db',
-            'user' => 'root',
-            'pass' => '',
-            'port' => '3306',
+            'adapter' => 'sqlsrv',
+            'host' => '127.0.0.1',
+            'name' => 'FNLBilling',
+            'user' => 'sa',
+            'pass' => 'password',
+            'port' => '1433',
             'charset' => 'utf8',
         ],
         'testing' => [

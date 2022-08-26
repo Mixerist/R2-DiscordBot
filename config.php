@@ -7,4 +7,11 @@ return [
     'password' => 'password',
 
     'token' => 'token',
+
+    'servers' => [
+        [
+            'database_name' => 'FNLGame2155',
+            'server_id' => 2155
+        ],
+    ]
 ];

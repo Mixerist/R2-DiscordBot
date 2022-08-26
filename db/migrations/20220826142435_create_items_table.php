@@ -18,9 +18,8 @@ final class CreateItemsTable extends AbstractMigration
      */
     public function change(): void
     {
-        $table = $this->table('items', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'biginteger')
-            ->addColumn('promo_code_id', 'biginteger')
+        $table = $this->table('items');
+        $table->addColumn('promo_code_id', 'integer')
             ->addForeignKey('promo_code_id', 'promo_codes', 'id')
             ->addColumn('item_id', 'integer')
             ->addColumn('count', 'integer')
