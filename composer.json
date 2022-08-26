@@ -1,6 +1,7 @@
 {
     "require": {
         "team-reflex/discord-php": "^7.2",
-        "ext-pdo": "*"
+        "ext-pdo": "*",
+        "robmorgan/phinx": "^0.12.12"
     }
 }
