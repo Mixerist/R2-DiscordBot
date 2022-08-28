@@ -1,7 +1,15 @@
 {
-    "require": {
-        "team-reflex/discord-php": "^7.2",
-        "ext-pdo": "*",
-        "robmorgan/phinx": "^0.12.12"
-    }
+  "require": {
+    "team-reflex/discord-php": "^7.2",
+    "ext-pdo": "*",
+    "robmorgan/phinx": "^0.12.12"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    },
+    "files": [
+      "helpers.php"
+    ]
+  }
 }

@@ -2,7 +2,7 @@
 
 return [
     'server_ip' => '127.0.0.1',
-    'database' => 'FNLAccount',
+    'database' => 'FNLBilling',
     'username' => 'sa',
     'password' => 'password',
 
