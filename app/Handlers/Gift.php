@@ -68,7 +68,7 @@ class Gift
      */
     private function getPromoCode(string $promoCode)
     {
-        $sql = $this->pdo->prepare("SELECT * FROM [FNLBilling].[dbo].[promo_codes] WHERE promo_code = :promo_code AND is_enabled = 1");
+        $sql = $this->pdo->prepare("SELECT * FROM [FNLBilling].[dbo].[promo_codes] WHERE promo_code = :promo_code AND limited_date > GETDATE() AND is_enabled = 1");
         $sql->execute(['promo_code' => $promoCode]);
 
         if ($result = $sql->fetch(PDO::FETCH_ASSOC)) {
