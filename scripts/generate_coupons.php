@@ -1,6 +1,6 @@
 <?php
 
-$config = require_once "C:\OpenServer\domains\discordbot\config.php";
+$config = require_once 'C:\OpenServer\domains\discordbot\config.php';
 
 $pdo = new PDO("sqlsrv:Server={$config['server_ip']};Database={$config['database']}", $config['username'], $config['password']);
 
