@@ -33,19 +33,29 @@ class Gift
             return $this->interaction->respondWithMessage(MessageBuilder::new()->setContent($e->getMessage()));
         }
 
-        $sql = $this->pdo->prepare("INSERT INTO [FNLBilling].[dbo].[TBLSysOrderList] (mAvailablePeriod, mCnt, mItemID, mPracticalPeriod, mSvrNo, mSysID, mUserNo, mBindingType, mLimitedDate, mItemStatus) SELECT items.available_period, items.count, items.item_id, items.practical_period, promo_codes.server_id, promo_codes.sys_id, :user_id, items.binding_type, promo_codes.limited_date, items.item_status FROM [FNLBilling].[dbo].[promo_codes] INNER JOIN [FNLBilling].[dbo].[items] ON promo_codes.id = items.promo_code_id WHERE promo_code = :promo_code");
-        $sql->execute([
-            'promo_code' => $this->promo_code['promo_code'],
-            'user_id' => $user_id
-        ]);
+        try {
+            $this->pdo->beginTransaction();
 
-        $sql = $this->pdo->prepare("INSERT INTO [FNLBilling].[dbo].[redeemed_promo_codes] (user_id, promo_code_id) VALUES (:user_id, :promo_code_id)");
-        $sql->execute([
-            'user_id' => $user_id,
-            'promo_code_id' => $this->promo_code['id']
-        ]);
+            $sql = $this->pdo->prepare("INSERT INTO [FNLBilling].[dbo].[redeemed_promo_codes] (user_id, promo_code_id) VALUES (:user_id, :promo_code_id)");
+            $sql->execute([
+                'user_id' => $user_id,
+                'promo_code_id' => $this->promo_code['id']
+            ]);
 
-        return $this->interaction->respondWithMessage(MessageBuilder::new()->setContent('Промокод успешно активирован! Проверьте свои подарки.'));
+            $sql = $this->pdo->prepare("INSERT INTO [FNLBilling].[dbo].[TBLSysOrderList] (mAvailablePeriod, mCnt, mItemID, mPracticalPeriod, mSvrNo, mSysID, mUserNo, mBindingType, mLimitedDate, mItemStatus) SELECT items.available_period, items.count, items.item_id, items.practical_period, promo_codes.server_id, promo_codes.sys_id, :user_id, items.binding_type, promo_codes.limited_date, items.item_status FROM [FNLBilling].[dbo].[promo_codes] INNER JOIN [FNLBilling].[dbo].[items] ON promo_codes.id = items.promo_code_id WHERE promo_code = :promo_code");
+            $sql->execute([
+                'promo_code' => $this->promo_code['promo_code'],
+                'user_id' => $user_id
+            ]);
+
+            $this->pdo->commit();
+
+            return $this->interaction->respondWithMessage(MessageBuilder::new()->setContent('Промокод успешно активирован! Проверьте свои подарки.'));
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+
+            return $this->interaction->respondWithMessage(MessageBuilder::new()->setContent('Что-то пошло не так. Попробуйте снова.'));
+        }
     }
 
     /**
