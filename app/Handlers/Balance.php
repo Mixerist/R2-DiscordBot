@@ -32,7 +32,7 @@ class Balance
             $this->pdo->beginTransaction();
 
             $this->markCouponAsActivated($member['uid'], $coupon['id']);
-            $this->increaseUserBalance($member['uid'], $coupon['denomination']);
+            $this->increaseMemberBalance($member['uid'], $coupon['denomination']);
 
             $this->pdo->commit();
 
@@ -74,7 +74,7 @@ class Balance
         throw new Exception('Такой купон не найден или уже был использован ранее.');
     }
 
-    private function increaseUserBalance($uid, $denomination)
+    private function increaseMemberBalance($uid, $denomination)
     {
         $sql = $this->pdo->prepare("UPDATE [FNLAccount].[dbo].[Member] SET Cash += :denomination WHERE uid = :uid");
         $sql->execute([
