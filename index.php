@@ -19,6 +19,7 @@ try {
 }
 
 $pdo = new PDO("sqlsrv:Server={$config['server_ip']};Database={$config['database']}", $config['username'], $config['password']);
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $discord->on('ready', function (Discord $discord) use ($pdo) {
 
