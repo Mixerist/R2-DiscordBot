@@ -52,4 +52,26 @@ class RegisterCommand
 
         return new Command($discord, $builder->toArray());
     }
+
+    public static function sc(Discord $discord)
+    {
+        $builder = CommandBuilder::new()
+            ->setName('sc')
+            ->setDescription('Установить SC-карту на аккаунт.')
+            ->setType(Command::CHAT_INPUT);
+
+        $builder->addOption((new Option($discord))
+            ->setName('login')
+            ->setDescription('Логин от аккаунта.')
+            ->setType(Option::STRING)
+            ->setRequired(true));
+
+        $builder->addOption((new Option($discord))
+            ->setName('password')
+            ->setDescription('Пароль.')
+            ->setType(Option::STRING)
+            ->setRequired(true));
+
+        return new Command($discord, $builder->toArray());
+    }
 }

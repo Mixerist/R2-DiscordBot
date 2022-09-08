@@ -2,7 +2,8 @@
   "require": {
     "team-reflex/discord-php": "^7.2",
     "ext-pdo": "*",
-    "robmorgan/phinx": "^0.12.12"
+    "robmorgan/phinx": "^0.12.12",
+    "ext-json": "*"
   },
   "autoload": {
     "psr-4": {
