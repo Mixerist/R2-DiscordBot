@@ -29,6 +29,11 @@ class Gift
             $max_character_level = $this->getMaxCharacterLvl($this->interaction->data->options['login']['value']);
             $this->isPromoCodeUsed($user_id, $this->promo_code['id']);
             $this->checkMinLvl($this->promo_code['min_lvl'], $max_character_level);
+
+            if ((int)$this->promo_code['max_lvl'] > 0) {
+                $this->checkMaxLvl($this->promo_code['max_lvl'], $max_character_level);
+            }
+
         } catch (Exception $e) {
             return $this->interaction->respondWithMessage(MessageBuilder::new()->setContent($e->getMessage()));
         }
@@ -145,5 +150,13 @@ class Gift
         if ($max_character_lvl < $min_lvl) {
             throw new Exception('Ваш уровень слишком низок чтобы использовать этот промокод. Наберитесь опыта и попробуйте снова.');
         }
+    }
+
+    private function checkMaxLvl($max_lvl, $max_character_lvl)
+    {
+        if ($max_character_lvl > $max_lvl) {
+            throw new Exception("Ваш уровень слишком высок чтобы использовать этот промокод. Максимальный уровень использования: $max_lvl.");
+        }
+
     }
 }
