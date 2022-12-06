@@ -25,6 +25,7 @@ final class CreatePromoCodesTable extends AbstractMigration
             ->addIndex('promo_code', ['unique' => true])
             ->addColumn('limited_date', 'datetime')
             ->addColumn('min_lvl', 'smallinteger')
+            ->addColumn('max_lvl', 'smallinteger')
             ->addColumn('is_enabled', 'boolean')
             ->create();
     }
