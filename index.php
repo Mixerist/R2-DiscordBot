@@ -24,10 +24,12 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $discord->on('ready', function (Discord $discord) use ($pdo) {
 
-    $discord->application->commands->save(RegisterCommand::gift($discord));
-    $discord->application->commands->save(RegisterCommand::balance($discord));
-    $discord->application->commands->save(RegisterCommand::sc($discord));
+    /* Регистрируем команды */
+    foreach (get_class_methods(RegisterCommand::class) as $method) {
+        $discord->application->commands->save(RegisterCommand::$method($discord));
+    }
 
+    /* Список команд для прослушивания */
     $discord->listenCommand('gift', function (Interaction $interaction) use ($pdo) {
         (new Gift($pdo, $interaction))->run();
     });
