@@ -148,10 +148,13 @@ class Gift
     private function checkMinLvl($min_lvl, $max_character_lvl)
     {
         if ($max_character_lvl < $min_lvl) {
-            throw new Exception('Ваш уровень слишком низок чтобы использовать этот промокод. Наберитесь опыта и попробуйте снова.');
+            throw new Exception("Ваш уровень слишком низок чтобы использовать этот промокод. Минимальный уровень использования: $min_lvl.");
         }
     }
 
+    /**
+     * @throws Exception
+     */
     private function checkMaxLvl($max_lvl, $max_character_lvl)
     {
         if ($max_character_lvl > $max_lvl) {
