@@ -14,11 +14,11 @@ class Gift
 
     private Interaction $interaction;
 
-    private ?int $user_id = null;
+    private int $user_id;
 
     private array $promo_code = [];
 
-    private ?int $max_character_level = null;
+    private int $max_character_level;
 
     public function __construct(PDO $pdo, Interaction $interaction)
     {
