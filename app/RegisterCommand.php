@@ -1,5 +1,7 @@
 <?php
 
+namespace App;
+
 use Discord\Builders\CommandBuilder;
 use Discord\Discord;
 use Discord\Parts\Interactions\Command\Command;
@@ -51,7 +53,7 @@ class RegisterCommand
         return new Command($discord, $builder->toArray());
     }
 
-    public static function sc(Discord $discord)
+    public static function sc(Discord $discord): Command
     {
         $builder = CommandBuilder::new()
             ->setName('sc')
