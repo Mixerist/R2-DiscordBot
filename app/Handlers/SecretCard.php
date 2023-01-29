@@ -33,6 +33,7 @@ class SecretCard
 
             $this->pdo->beginTransaction();
 
+            $this->deleteOldSecretCardIfExists($user_id);
             $this->generateSecretCard($user_id);
             $this->enableSecretCard($user_id);
 
@@ -72,6 +73,18 @@ class SecretCard
         $stmt->execute([':user_id' => $user_id]);
     }
 
+    private function deleteOldSecretCardIfExists(int $user_id)
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM [FNLAccount].[dbo].[TblUserSecKeyTable] WHERE mUserNo = :user_id");
+        $stmt->execute([':user_id' => $user_id]);
+
+        if ($stmt->fetchColumn()) {
+            $stmt = $this->pdo->prepare("DELETE FROM [FNLAccount].[dbo].[TblUserSecKeyTable] WHERE TblUserSecKeyTable.mUserNo = :user_id");
+            $stmt->execute([':user_id' => $user_id]);
+
+        }
+    }
+
     private function generateCode(): int
     {
         return rand(1000, 9999);
@@ -79,7 +92,7 @@ class SecretCard
 
     private function enableSecretCard(int $user_id)
     {
-        $stmt = $this->pdo->prepare("UPDATE [FNLAccount].[dbo].[TblUser] SET mSecKeyTableUse = 1 WHERE mUserNo = :user_id");
+        $stmt = $this->pdo->prepare("UPDATE [FNLAccount].[dbo].[TblUser] SET mSecKeyTableUse = 2 WHERE mUserNo = :user_id");
         $stmt->execute([':user_id' => $user_id]);
     }
 
@@ -88,7 +101,14 @@ class SecretCard
         $stmt = $this->pdo->prepare("SELECT mSecKey1, mSecKey2, mSecKey3, mSecKey4, mSecKey5, mSecKey6, mSecKey7, mSecKey8, mSecKey9, mSecKey10, mSecKey11, mSecKey12, mSecKey13, mSecKey14, mSecKey15, mSecKey16, mSecKey17, mSecKey18, mSecKey19, mSecKey20, mSecKey21, mSecKey22, mSecKey23, mSecKey24, mSecKey25, mSecKey26, mSecKey27, mSecKey28, mSecKey29, mSecKey30, mSecKey31, mSecKey32, mSecKey33, mSecKey34, mSecKey35, mSecKey36, mSecKey37, mSecKey38, mSecKey39, mSecKey40, mSecKey41, mSecKey42, mSecKey43, mSecKey44, mSecKey45, mSecKey46, mSecKey47, mSecKey48, mSecKey49, mSecKey50 FROM [FNLAccount].[dbo].[TblUserSecKeyTable] WHERE mUserNo = :user_id");
         $stmt->execute([':user_id' => $user_id]);
 
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $sc = [];
+
+        foreach ($stmt->fetch(PDO::FETCH_ASSOC) as $key => $value) {
+            $key = str_replace('mSecKey', '', $key);
+            $sc[$key] = $value;
+        }
+
+        return $sc;
     }
 
     /**
@@ -96,7 +116,7 @@ class SecretCard
      */
     private function checkIfSecretCardEnabled(int $user_id)
     {
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM [FNLAccount].[dbo].[TblUserSecKeyTable] WHERE mUserNo = :user_id");
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM [FNLAccount].[dbo].[TblUserSecKeyTable] INNER JOIN [FNLAccount].[dbo].[TblUser] ON TblUserSecKeyTable.mUserNo = TblUser.mUserNo WHERE TblUser.mUserNo = :user_id AND TblUser.mSecKeyTableUse <> 0");
         $stmt->execute([':user_id' => $user_id]);
 
         if ($stmt->fetchColumn()) {
