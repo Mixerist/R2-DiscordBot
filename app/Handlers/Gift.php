@@ -35,6 +35,10 @@ class Gift
 
             $this->isPromoCodeUsed();
 
+            if ($this->promo_code['max_activations'] > 0) {
+                $this->checkCountOfActivations();
+            }
+
             if ($this->promo_code['specific_for_guild'] > 0) {
                 $this->checkGuild();
             }
@@ -174,6 +178,21 @@ class Gift
         }
 
         throw new Exception('Несуществующая гильдия.');
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function checkCountOfActivations()
+    {
+        $sql = $this->pdo->prepare("SELECT COUNT(*) FROM [FNLBilling].[dbo].[redeemed_promo_codes] WHERE redeemed_promo_codes.promo_code_id = :promo_code_id");
+        $sql->execute([
+            'promo_code_id' => $this->promo_code['id'],
+        ]);
+
+        if ($sql->fetchColumn() >= $this->promo_code['max_activations']) {
+            throw new Exception('Превышено максимальное количество активаций для данного купона.');
+        }
     }
 
     /**
