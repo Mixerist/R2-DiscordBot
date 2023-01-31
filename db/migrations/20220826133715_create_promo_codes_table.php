@@ -26,6 +26,7 @@ final class CreatePromoCodesTable extends AbstractMigration
             ->addColumn('limited_date', 'datetime')
             ->addColumn('min_lvl', 'smallinteger')
             ->addColumn('max_lvl', 'smallinteger')
+            ->addColumn('specific_for_guild', 'smallinteger')
             ->addColumn('is_enabled', 'boolean')
             ->create();
     }

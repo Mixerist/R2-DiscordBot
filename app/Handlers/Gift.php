@@ -35,6 +35,10 @@ class Gift
 
             $this->isPromoCodeUsed();
 
+            if ($this->promo_code['specific_for_guild'] > 0) {
+                $this->checkGuild();
+            }
+
             if ($this->promo_code['min_lvl'] > 0) {
                 $this->checkMinLvl();
             }
@@ -148,6 +152,46 @@ class Gift
 
         if ($sql->fetchColumn()) {
             throw new Exception('Ранее вы уже использовали этот промокод.');
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function getGuild()
+    {
+        $server = $this->defineServer();
+
+        $sql = $this->pdo->prepare("SELECT * FROM [{$server['database_name']}].[dbo].[TblGuild] WHERE TblGuild.mGuildNo = :guild_id");
+        $sql->execute([
+            'guild_id' => $this->promo_code['specific_for_guild'],
+        ]);
+
+        $result = $sql->fetch(PDO::FETCH_ASSOC);
+
+        if ($result) {
+            return $result;
+        }
+
+        throw new Exception('Несуществующая гильдия.');
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function checkGuild()
+    {
+        $server = $this->defineServer();
+        $guild = $this->getGuild();
+
+        $sql = $this->pdo->prepare("SELECT COUNT(*) FROM [FNLAccount].[dbo].[TblUser] INNER JOIN [{$server['database_name']}].[dbo].[TblPc] ON TblUser.mUserNo = TblPc.mOwner INNER JOIN [{$server['database_name']}].[dbo].[TblGuildMember] ON TblPc.mNo = TblGuildMember.mPcNo WHERE TblGuildMember.mGuildNo = :guild_id AND TblUser.mUserNo = :user_id");
+        $sql->execute([
+            'guild_id' => $this->promo_code['specific_for_guild'],
+            'user_id' => $this->user_id
+        ]);
+
+        if ($sql->fetchColumn() < 1) {
+            throw new Exception('Только участники гильдии ' . trim($guild['mGuildNm']) . ' могут использовать данный промокод.');
         }
     }
 
