@@ -203,14 +203,20 @@ class Gift
         $server = $this->defineServer();
         $guild = $this->getGuild();
 
-        $sql = $this->pdo->prepare("SELECT COUNT(*) FROM [FNLAccount].[dbo].[TblUser] INNER JOIN [{$server['database_name']}].[dbo].[TblPc] ON TblUser.mUserNo = TblPc.mOwner INNER JOIN [{$server['database_name']}].[dbo].[TblGuildMember] ON TblPc.mNo = TblGuildMember.mPcNo WHERE TblGuildMember.mGuildNo = :guild_id AND TblUser.mUserNo = :user_id");
+        $sql = $this->pdo->prepare("SELECT DATEADD(hh, {$this->promo_code['hours_before_use']}, MIN(TblGuildMember.mRegDate)) AS mRegDate FROM [FNLAccount].[dbo].[TblUser] INNER JOIN [{$server['database_name']}].[dbo].[TblPc] ON TblUser.mUserNo = TblPc.mOwner INNER JOIN [{$server['database_name']}].[dbo].[TblGuildMember] ON TblPc.mNo = TblGuildMember.mPcNo WHERE TblGuildMember.mGuildNo = :guild_id AND TblUser.mUserNo = :user_id");
         $sql->execute([
             'guild_id' => $this->promo_code['specific_for_guild'],
             'user_id' => $this->user_id
         ]);
 
-        if ($sql->fetchColumn() < 1) {
+        $date = $sql->fetchColumn();
+
+        if (empty($date)) {
             throw new Exception('Только участники гильдии ' . trim($guild['mGuildNm']) . ' могут использовать данный промокод.');
+        }
+
+        if (time() < strtotime($date)) {
+            throw new Exception("Вы сможете активировать данный промокод не раньше чем через {$this->promo_code['hours_before_use']} ч. после вступления в гильдию. Попробуйте после " . date('Y-m-d H:i', strtotime($date)));
         }
     }
 
