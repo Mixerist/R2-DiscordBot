@@ -8,6 +8,7 @@ use Discord\Parts\Interactions\Interaction;
 use Exception;
 use PDO;
 use PDOException;
+use React\Promise\ExtendedPromiseInterface;
 
 class Balance
 {
@@ -15,21 +16,23 @@ class Balance
 
     private Interaction $interaction;
 
+    private string $primary_key = 'mUserNo';
+
     public function __construct(Interaction $interaction)
     {
         $this->pdo = Database::getInstance();
         $this->interaction = $interaction;
     }
 
-    public function run()
+    public function run(): ExtendedPromiseInterface
     {
         try {
             $member = $this->getMember($this->interaction->data->options['login']['value']);
             $coupon = $this->getCoupon($this->interaction->data->options['coupon']['value']);
 
             $this->pdo->beginTransaction();
-            $this->markCouponAsActivated($member['uid'], $coupon['id']);
-            $this->increaseMemberBalance($member['uid'], $coupon['denomination']);
+            $this->markCouponAsActivated($member[$this->primary_key], $coupon['id']);
+            $this->increaseMemberBalance($member[$this->primary_key], $coupon['denomination']);
             $this->pdo->commit();
 
             return $this->interaction->respondWithMessage(MessageBuilder::new()->setContent('Купон успешно активирован! Проверьте свой баланс.'));
@@ -72,16 +75,16 @@ class Balance
         throw new Exception('Такой купон не найден или уже был использован ранее.');
     }
 
-    private function increaseMemberBalance($uid, $denomination)
+    private function increaseMemberBalance(int $uid, int $denomination)
     {
-        $sql = $this->pdo->prepare("UPDATE [FNLAccount].[dbo].[Member] SET Cash += :denomination WHERE uid = :uid");
+        $sql = $this->pdo->prepare("UPDATE [FNLAccount].[dbo].[Member] SET Cash += :denomination WHERE {$this->primary_key} = :uid");
         $sql->execute([
             'denomination' => $denomination,
             'uid' => $uid
         ]);
     }
 
-    private function markCouponAsActivated($uid, $coupon_id)
+    private function markCouponAsActivated(int $uid, int $coupon_id)
     {
         $sql = $this->pdo->prepare("INSERT INTO [FNLBilling].[dbo].[redeemed_coupons] (member_uid, coupon_id) VALUES (:uid, :coupon_id)");
         $sql->execute([
