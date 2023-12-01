@@ -80,7 +80,6 @@ class SecretCard
         if ($stmt->fetchColumn()) {
             $stmt = $this->pdo->prepare("DELETE FROM [FNLAccount].[dbo].[TblUserSecKeyTable] WHERE TblUserSecKeyTable.mUserNo = :user_id");
             $stmt->execute([':user_id' => $user_id]);
-
         }
     }
 
