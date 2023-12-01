@@ -1,8 +1,8 @@
 <?php
 
-$config = require_once '../config.php';
+use Classes\Database;
 
-$pdo = new PDO("sqlsrv:Server={$config['server_ip']};Database={$config['database']}", $config['username'], $config['password']);
+$pdo = Database::getInstance();
 
 /*
  * Не создавайте одновременно очень много купонов чтобы не положить базу.

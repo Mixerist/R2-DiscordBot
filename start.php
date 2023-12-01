@@ -18,14 +18,7 @@ try {
     exit($e->getMessage());
 }
 
-$pdo = new PDO(
-    'sqlsrv:Server=' . config()['server_ip'] . ';Database=' . config()['database'],
-    config()['username'],
-    config()['password']
-);
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-$discord->on('ready', function (Discord $discord) use ($pdo) {
+$discord->on('ready', function (Discord $discord) {
 
     /* Регистрируем команды */
     foreach (get_class_methods(RegisterCommand::class) as $method) {
@@ -33,16 +26,16 @@ $discord->on('ready', function (Discord $discord) use ($pdo) {
     }
 
     /* Список команд для прослушивания */
-    $discord->listenCommand('gift', function (Interaction $interaction) use ($pdo) {
-        (new Gift($pdo, $interaction))->run();
+    $discord->listenCommand('gift', function (Interaction $interaction) {
+        (new Gift($interaction))->run();
     });
 
-    $discord->listenCommand('balance', function (Interaction $interaction) use ($pdo) {
-        (new Balance($pdo, $interaction))->run();
+    $discord->listenCommand('balance', function (Interaction $interaction) {
+        (new Balance($interaction))->run();
     });
 
-    $discord->listenCommand('sc', function (Interaction $interaction) use ($pdo) {
-        (new SecretCard($pdo, $interaction))->run();
+    $discord->listenCommand('sc', function (Interaction $interaction) {
+        (new SecretCard($interaction))->run();
     });
 });
 

@@ -2,6 +2,7 @@
 
 namespace App\Handlers;
 
+use Classes\Database;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Interactions\Interaction;
 use Exception;
@@ -14,9 +15,9 @@ class SecretCard
 
     private Interaction $interaction;
 
-    public function __construct(PDO $pdo, Interaction $interaction)
+    public function __construct(Interaction $interaction)
     {
-        $this->pdo = $pdo;
+        $this->pdo = Database::getInstance();
         $this->interaction = $interaction;
     }
 
@@ -32,11 +33,9 @@ class SecretCard
             $this->checkIfSecretCardEnabled($user_id);
 
             $this->pdo->beginTransaction();
-
             $this->deleteOldSecretCardIfExists($user_id);
             $this->generateSecretCard($user_id);
             $this->enableSecretCard($user_id);
-
             $this->pdo->commit();
 
             return $this->interaction->respondWithMessage(MessageBuilder::new()->addFileFromContent(trim($user['mUserId']) . '.json', json_encode($this->getSecretCard($user_id), JSON_PRETTY_PRINT)));
@@ -60,7 +59,7 @@ class SecretCard
             ':password' => $password,
         ]);
 
-        if ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        if ($result = $stmt->fetch()) {
             return $result;
         }
 
@@ -103,7 +102,7 @@ class SecretCard
 
         $sc = [];
 
-        foreach ($stmt->fetch(PDO::FETCH_ASSOC) as $key => $value) {
+        foreach ($stmt->fetch() as $key => $value) {
             $key = str_replace('mSecKey', '', $key);
             $sc[$key] = $value;
         }

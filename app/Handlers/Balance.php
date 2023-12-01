@@ -2,10 +2,12 @@
 
 namespace App\Handlers;
 
+use Classes\Database;
 use Discord\Builders\MessageBuilder;
 use Discord\Parts\Interactions\Interaction;
 use Exception;
 use PDO;
+use PDOException;
 
 class Balance
 {
@@ -13,9 +15,9 @@ class Balance
 
     private Interaction $interaction;
 
-    public function __construct(PDO $pdo, Interaction $interaction)
+    public function __construct(Interaction $interaction)
     {
-        $this->pdo = $pdo;
+        $this->pdo = Database::getInstance();
         $this->interaction = $interaction;
     }
 
@@ -24,23 +26,19 @@ class Balance
         try {
             $member = $this->getMember($this->interaction->data->options['login']['value']);
             $coupon = $this->getCoupon($this->interaction->data->options['coupon']['value']);
-        } catch (Exception $e) {
-            return $this->interaction->respondWithMessage(MessageBuilder::new()->setContent($e->getMessage()));
-        }
 
-        try {
             $this->pdo->beginTransaction();
-
             $this->markCouponAsActivated($member['uid'], $coupon['id']);
             $this->increaseMemberBalance($member['uid'], $coupon['denomination']);
-
             $this->pdo->commit();
 
             return $this->interaction->respondWithMessage(MessageBuilder::new()->setContent('Купон успешно активирован! Проверьте свой баланс.'));
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             $this->pdo->rollBack();
 
             return $this->interaction->respondWithMessage(MessageBuilder::new()->setContent('Что-то пошло не так. Попробуйте снова.'));
+        } catch (Exception $e) {
+            return $this->interaction->respondWithMessage(MessageBuilder::new()->setContent($e->getMessage()));
         }
     }
 
@@ -52,7 +50,7 @@ class Balance
         $sql = $this->pdo->prepare("SELECT * FROM [FNLAccount].[dbo].[Member] WHERE mUserId = :login");
         $sql->execute(['login' => $login]);
 
-        if ($result = $sql->fetch(PDO::FETCH_ASSOC)) {
+        if ($result = $sql->fetch()) {
             return $result;
         }
 
@@ -67,7 +65,7 @@ class Balance
         $sql = $this->pdo->prepare("SELECT coupons.* FROM [FNLBilling].[dbo].[coupons] LEFT JOIN [FNLBilling].[dbo].[redeemed_coupons] ON coupons.id = redeemed_coupons.coupon_id WHERE coupon = :coupon AND coupon_id IS NULL");
         $sql->execute(['coupon' => $coupon]);
 
-        if ($result = $sql->fetch(PDO::FETCH_ASSOC)) {
+        if ($result = $sql->fetch()) {
             return $result;
         }
 
