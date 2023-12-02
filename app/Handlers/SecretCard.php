@@ -47,14 +47,14 @@ class SecretCard extends AbstractHandler
      */
     private function getUserByLoginAndPassword(string $login, string $password)
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM [FNLAccount].[dbo].[Member] INNER JOIN [FNLAccount].[dbo].[TblUser] ON TblUser.mUserId = Member.mUserId WHERE Member.mUserId = :login AND Member.mUserPswd = :password");
-        $stmt->execute([
-            ':login' => $login,
-            ':password' => $password,
-        ]);
+        $stmt = $this->pdo->prepare("SELECT TOP 1 TblUser.mUserNo, TblUser.mUserId, Member.mUserPswd FROM [FNLAccount].[dbo].[Member] INNER JOIN [FNLAccount].[dbo].[TblUser] ON TblUser.mUserId = Member.mUserId WHERE Member.mUserId = :login");
+        $stmt->execute([':login' => $login]);
+        $user = $stmt->fetch();
 
-        if ($result = $stmt->fetch()) {
-            return $result;
+        $hashed_password = password_hash($user['mUserPswd'], PASSWORD_DEFAULT);
+
+        if (password_verify($password, $hashed_password)) {
+            return $user;
         }
 
         throw new Exception('Введен неверный логин или пароль.');
