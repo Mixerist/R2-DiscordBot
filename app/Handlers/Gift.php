@@ -4,17 +4,14 @@ namespace App\Handlers;
 
 use Classes\Database;
 use Discord\Builders\MessageBuilder;
-use Discord\Parts\Interactions\Interaction;
 use Exception;
 use PDO;
 use PDOException;
 use React\Promise\ExtendedPromiseInterface;
 
-class Gift
+class Gift extends AbstractHandler
 {
     private PDO $pdo;
-
-    private Interaction $interaction;
 
     private int $user_id;
 
@@ -22,14 +19,10 @@ class Gift
 
     private int $max_character_level;
 
-    public function __construct(Interaction $interaction)
-    {
-        $this->pdo = Database::getInstance();
-        $this->interaction = $interaction;
-    }
-
     public function run(): ExtendedPromiseInterface
     {
+        $this->pdo = Database::getInstance();
+
         try {
             $this->user_id = $this->getUserId();
             $this->promo_code = $this->getPromoCode();
@@ -74,7 +67,7 @@ class Gift
     private function getUserId()
     {
         $sql = $this->pdo->prepare("SELECT mUserNo FROM [FNLAccount].[dbo].[TblUser] WHERE mUserId = :login");
-        $sql->execute(['login' => $this->interaction->data->options['login']['value']]);
+        $sql->execute(['login' => $this->getParam('login')]);
 
         if ($result = $sql->fetch()['mUserNo']) {
             return $result;
@@ -89,7 +82,7 @@ class Gift
     private function getPromoCode()
     {
         $sql = $this->pdo->prepare("SELECT * FROM [FNLBilling].[dbo].[promo_codes] WHERE promo_code = :promo_code AND limited_date > GETDATE() AND is_enabled = 1");
-        $sql->execute(['promo_code' => $this->interaction->data->options['promo_code']['value']]);
+        $sql->execute(['promo_code' => $this->getParam('promo_code')]);
 
         if ($result = $sql->fetch()) {
             return $result;
@@ -106,7 +99,7 @@ class Gift
         $server = $this->defineServer();
 
         $sql = $this->pdo->prepare("SELECT MAX(mLevel) AS mLevel FROM [FNLAccount].[dbo].[TblUser] INNER JOIN [{$server['database_name']}].[dbo].[TblPc] ON TblUser.mUserNo = TblPc.mOwner INNER JOIN [{$server['database_name']}].[dbo].[TblPcState] ON TblPc.mNo = TblPcState.mNo WHERE mUserId = :login AND TblPc.mDelDate IS NULL");
-        $sql->execute(['login' => $this->interaction->data->options['login']['value']]);
+        $sql->execute(['login' => $this->getParam('login')]);
 
         if ($max_character_lvl = $sql->fetch()['mLevel']) {
             return $max_character_lvl;

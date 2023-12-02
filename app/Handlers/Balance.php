@@ -4,31 +4,24 @@ namespace App\Handlers;
 
 use Classes\Database;
 use Discord\Builders\MessageBuilder;
-use Discord\Parts\Interactions\Interaction;
 use Exception;
 use PDO;
 use PDOException;
 use React\Promise\ExtendedPromiseInterface;
 
-class Balance
+class Balance extends AbstractHandler
 {
     private PDO $pdo;
 
-    private Interaction $interaction;
-
     private string $primary_key = 'mUserNo';
-
-    public function __construct(Interaction $interaction)
-    {
-        $this->pdo = Database::getInstance();
-        $this->interaction = $interaction;
-    }
 
     public function run(): ExtendedPromiseInterface
     {
+        $this->pdo = Database::getInstance();
+
         try {
-            $member = $this->getMember($this->interaction->data->options['login']['value']);
-            $coupon = $this->getCoupon($this->interaction->data->options['coupon']['value']);
+            $member = $this->getMember($this->getParam('login'));
+            $coupon = $this->getCoupon($this->getParam('coupon'));
 
             $this->pdo->beginTransaction();
             $this->markCouponAsActivated($member[$this->primary_key], $coupon['id']);

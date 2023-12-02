@@ -4,29 +4,23 @@ namespace App\Handlers;
 
 use Classes\Database;
 use Discord\Builders\MessageBuilder;
-use Discord\Parts\Interactions\Interaction;
 use Exception;
 use PDO;
 use PDOException;
+use React\Promise\ExtendedPromiseInterface;
 
-class SecretCard
+class SecretCard extends AbstractHandler
 {
     private PDO $pdo;
 
-    private Interaction $interaction;
-
-    public function __construct(Interaction $interaction)
+    public function run(): ExtendedPromiseInterface
     {
         $this->pdo = Database::getInstance();
-        $this->interaction = $interaction;
-    }
 
-    public function run()
-    {
         try {
             $user = $this->getUserByLoginAndPassword(
-                $this->interaction->data->options['login']['value'],
-                $this->interaction->data->options['password']['value']
+                $this->getParam('login'),
+                $this->getParam('password')
             );
             $user_id = $user['mUserNo'];
 
