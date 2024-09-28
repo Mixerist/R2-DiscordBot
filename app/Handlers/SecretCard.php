@@ -32,7 +32,7 @@ class SecretCard extends AbstractHandler
             $this->enableSecretCard($user_id);
             $this->pdo->commit();
 
-            return $this->interaction->respondWithMessage(MessageBuilder::new()->addFileFromContent(trim($user['mUserId']) . '.json', json_encode($this->getSecretCard($user_id), JSON_PRETTY_PRINT)));
+            return $this->interaction->respondWithMessage(MessageBuilder::new()->addFileFromContent(trim($user['mUserId']) . '.json', json_encode($this->getSecretCard($user_id), JSON_PRETTY_PRINT)), true);
         } catch (PDOException $e) {
             $this->pdo->rollBack();
 
